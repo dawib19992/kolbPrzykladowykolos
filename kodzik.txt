@@ -1,1 +1,206 @@
+// MainWindow.h
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include <QMainWindow>
+#include <QListWidget>
+#include <QLabel>
+#include <QPushButton>
+#include "AddCustomerDialog.h"
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    MainWindow(QWidget *parent = nullptr);
+
+private slots:
+    void calculateTotalOrders();
+    void openAddCustomerDialog();
+
+private:
+    QListWidget *customerList;
+    QLabel *logoLabel;
+    QPushButton *calculateButton;
+    QPushButton *addCustomerButton;
+};
+
+#endif // MAINWINDOW_H
+
+// MainWindow.cpp
+#include "MainWindow.h"
+
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+{
+    customerList = new QListWidget(this);
+    logoLabel = new QLabel("Shop Logo", this);
+    calculateButton = new QPushButton("Calculate Total Orders", this);
+    addCustomerButton = new QPushButton("Add Customer", this);
+
+    connect(calculateButton, SIGNAL(clicked()), this, SLOT(calculateTotalOrders()));
+    connect(addCustomerButton, SIGNAL(clicked()), this, SLOT(openAddCustomerDialog()));
+
+    // Layout setup (adjust as needed)
+}
+
+void MainWindow::calculateTotalOrders()
+{
+    double totalOrders = 0.0;
+
+    for (int i = 0; i < customerList->count(); ++i) {
+        QListWidgetItem *item = customerList->item(i);
+        // Assuming you have a custom structure to store order value in each item
+        double orderValue = item->data(Qt::UserRole).toDouble();
+        totalOrders += orderValue;
+    }
+
+    // Display or use the totalOrders value as needed
+}
+
+void MainWindow::openAddCustomerDialog()
+{
+    AddCustomerDialog *dialog = new AddCustomerDialog(this);
+
+    if (dialog->exec() == QDialog::Accepted) {
+        QString name = dialog->getName();
+        QString address = dialog->getAddress();
+        double orderValue = dialog->getOrderValue();
+        double discount = dialog->getDiscount();
+
+        // Assuming you have a custom structure to store customer data
+        QString customerInfo = QString("%1, %2, %3").arg(address, name, QString::number(orderValue));
+        QListWidgetItem *newItem = new QListWidgetItem(customerInfo);
+        // Store order value as user data in the item
+        newItem->setData(Qt::UserRole, QVariant(orderValue));
+
+        // Add the new item to the list
+        customerList->addItem(newItem);
+
+        // Sort the list based on order value
+        customerList->sortItems(Qt::DescendingOrder);
+    }
+}
+
+// MainWindow.cpp
+#include "MainWindow.h"
+
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+{
+    customerList = new QListWidget(this);
+
+    logoLabel = new QLabel("Shop Logo", this);
+
+    calculateButton = new QPushButton("Calculate Total Orders", this);
+    connect(calculateButton, SIGNAL(clicked()), this, SLOT(calculateTotalOrders()));
+
+    addCustomerButton = new QPushButton("Add Customer", this);
+    connect(addCustomerButton, SIGNAL(clicked()), this, SLOT(openAddCustomerDialog()));
+
+    // Layout setup (adjust as needed)
+}
+
+void MainWindow::calculateTotalOrders()
+{
+    // Implement the logic to calculate total orders
+}
+
+void MainWindow::openAddCustomerDialog()
+{
+    AddCustomerDialog *dialog = new AddCustomerDialog(this);
+    if (dialog->exec() == QDialog::Accepted) {
+        // Get data from the dialog and add the customer to the list
+        QString name = dialog->getName();
+        QString address = dialog->getAddress();
+        double orderValue = dialog->getOrderValue();
+        double discount = dialog->getDiscount();
+
+        // Add the customer to the list (you need to implement this)
+        // customerList->addItem(...);
+
+        // Sort the list (you need to implement this)
+        // customerList->sortItems(...);
+    }
+}
+// AddCustomerDialog.h
+#ifndef ADDCUSTOMERDIALOG_H
+#define ADDCUSTOMERDIALOG_H
+
+#include <QDialog>
+#include <QLineEdit>
+#include <QPushButton>
+
+class AddCustomerDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    AddCustomerDialog(QWidget *parent = nullptr);
+
+    QString getName() const;
+    QString getAddress() const;
+    double getOrderValue() const;
+    double getDiscount() const;
+
+private slots:
+    void acceptData();
+
+private:
+    QLineEdit *nameLineEdit;
+    QLineEdit *addressLineEdit;
+    QLineEdit *orderValueLineEdit;
+    QLineEdit *discountLineEdit;
+    QPushButton *okButton;
+    QPushButton *cancelButton;
+};
+
+#endif // ADDCUSTOMERDIALOG_H
+
+// AddCustomerDialog.cpp
+#include "AddCustomerDialog.h"
+
+AddCustomerDialog::AddCustomerDialog(QWidget *parent)
+    : QDialog(parent)
+{
+    nameLineEdit = new QLineEdit(this);
+    addressLineEdit = new QLineEdit(this);
+    orderValueLineEdit = new QLineEdit(this);
+    discountLineEdit = new QLineEdit(this);
+
+    okButton = new QPushButton("OK", this);
+    connect(okButton, SIGNAL(clicked()), this, SLOT(acceptData()));
+
+    cancelButton = new QPushButton("Cancel", this);
+    connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+
+    // Layout setup (adjust as needed)
+}
+
+void AddCustomerDialog::acceptData()
+{
+    // Validate input and accept data
+    accept();
+}
+
+QString AddCustomerDialog::getName() const
+{
+    return nameLineEdit->text();
+}
+
+QString AddCustomerDialog::getAddress() const
+{
+    return addressLineEdit->text();
+}
+
+double AddCustomerDialog::getOrderValue() const
+{
+    return orderValueLineEdit->text().toDouble();
+}
+
+double AddCustomerDialog::getDiscount() const
+{
+    return discountLineEdit->text().toDouble();
+}
 
